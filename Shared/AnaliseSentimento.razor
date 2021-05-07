@@ -1,0 +1,30 @@
+﻿<div class="sentiment">
+    @if (Prediction.Equals("p"))
+    {
+        <h4>Seu sentimento foi positivo!!!</h4><br />
+        <div id="result-prediction-positive">
+            <img src="img/positivo.png" />
+        </div>
+    }
+    else if (Prediction.Equals("n"))
+    {
+        <h4>Seu sentimento foi negativo.</h4><br />
+        <div id="result-prediction-negative">
+            <img src="img/negativo.png" />
+        </div>
+    }
+
+    <div class="marker" id="percent-prediction" hidden>
+        <div style="left: @Taxa.ToString().Replace(",",".")%">
+            <div><span class="oi oi-arrow-thick-top"></span></div>
+            <label>@Taxa.ToString("0.0")%</label>
+        </div>
+    </div>
+
+</div>
+
+
+@functions {
+    [Parameter] public float Taxa { get; set; }
+    [Parameter] public string Prediction { get; set; }
+}

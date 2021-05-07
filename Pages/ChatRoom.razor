@@ -1,0 +1,124 @@
+﻿@page "/chatroom"
+@inject NavigationManager NavManager
+@inject AppData appData
+
+@if (predictionText.Equals("r"))
+    {
+        <div class="center" style="width: 95%;">
+            <div class="alert alert-secondary mt-4" role="alert">
+                <span class="oi oi-person mr-2" aria-hidden="true"></span>
+                <span>Você está conectado como <b>@appData.Nome</b></span>
+            </div>
+
+            <div id="scrollbox">
+
+                <div class="received">
+                    <div class="user">Chatboot</div>
+                    <div class="msg">Olá, como posso ajudar?</div>
+                </div>
+                <div class="sent">
+                    <div class="user">@appData.Nome</div>
+                    <div class="msg">Quero falar com o atendente</div>
+                </div>
+                <div class="received">
+                    <div class="user">Chatboot</div>
+                    <div class="msg">Ok! Já irei te transferir para nosso atendimento, mas antes de te transferir me explique em poucas palavras o motivo do seu contato</div>
+                </div>
+
+                <hr />
+                <textarea class="input-lg" style="width: 100%;" placeholder="digite sua resposta" @bind="texto"></textarea><br />
+
+                <div id="primeiraFase" hidden>
+                    @foreach (var item in new string[] { "positivo", "negativo" })
+                        {
+                    <div>
+                        <input type="radio" name="technology" id="@item" value="@item" @onchange="RadioSelection" checked=@(sentimento.Equals(item, StringComparison.OrdinalIgnoreCase)) />
+                        <label for="@item">@item</label>
+                    </div>
+                        }
+
+                    <button class="btn btn-primary" style="width: 100%;" @onclick="Treinar">Enviar</button>
+
+                </div>
+
+
+                <div id="segundaFase">
+
+                    <button class="btn btn-primary" style="width: 100%;" @onclick="CalcularScore">Enviar</button>
+
+                </div>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="center">
+            <br /><br />
+
+            <AnaliseSentimento Taxa=@taxaSentimento Prediction=@predictionText /><br /><br />
+
+            <button class="btn btn-primary" style="width: 50%" @onclick="RegistrarAcerto">Acertei</button><br /><br />
+            <button class="btn btn-primary" style="width: 50%" @onclick="RegistrarErro">Errei</button>
+        </div>
+    }
+
+<br />
+<br />
+<br />
+<br />
+
+@code {
+
+    float taxaSentimento = 50;
+
+    bool prediction;
+    string predictionText = "r";
+
+    private string texto;
+    private string sentimento = "positivo";
+    private int sentimentoValor;
+
+    protected bool IsSearching { get; set; }
+
+    public void CalcularScore()
+    {
+        SetValueSentiment();
+        var result = AnaliseSentimentoChatBot.Service.SentimentAnalysis.GetPrediction(texto);
+        taxaSentimento = result.Percentage;
+        prediction = result.Prediction;
+        predictionText = result.Prediction ? "p" : "n";
+    }
+
+    public async Task Treinar()
+    {
+        SetValueSentiment();
+        await AnaliseSentimentoChatBot.Service.SentimentAnalysis.TrainingAsync(texto, sentimentoValor);
+        NavManager.NavigateTo("/agradecimento");
+    }
+
+    public async Task RegistrarAcerto() => await RegistrarPredicao(true);
+    public async Task RegistrarErro() => await RegistrarPredicao(false);
+
+    public async Task RegistrarPredicao(bool acerto)
+    {
+        var predict = (acerto ? prediction : !prediction);
+        await AnaliseSentimentoChatBot.Service.SentimentAnalysis.RegisterPredictionAsync(texto, predict ? 1 : 0, acerto);
+        NavManager.NavigateTo("/agradecimento");
+    }
+
+    public void RadioSelection(ChangeEventArgs args)
+    {
+        sentimento = args.Value.ToString();
+
+        SetValueSentiment();
+    }
+
+    private void SetValueSentiment()
+    {
+        if (sentimento.Equals("positivo"))
+            sentimentoValor = 1;
+        else
+            sentimentoValor = 0;
+    }
+}

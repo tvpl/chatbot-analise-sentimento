@@ -1,0 +1,73 @@
+﻿@page "/"
+@inject AppData appData;
+@inject NavigationManager NavManager
+@inject IJSRuntime JS;
+
+<h1>Bem Vindo!</h1><br />
+
+<p>Primeiramente agradeço por dispor do seu tempo para me auxiliar nesta pesquisa.</p>
+
+<p>
+    A pesquisa tem por finalidade me auxiliar na escrita do meu TCC na PUC Minas, com o
+    propósito de descobrir se é possível utilizar de um pequeno texto muitas vezes desconexo
+    presente em chatbots de atendimento em empresas, buscando identificar o sentimento do
+    usuário por trás, auxiliando assim o atendente humano em segundo momento.
+</p>
+
+<div class="alert alert-secondary mt-4" role="alert" style="font-size: 12px;" hidden>
+    <h5 style="font-size: 14px;">Primeira Fase: Etapa de treinamento da ferramenta</h5><br />
+    <p>
+        Nesta fase você está sendo convidado a auxiliar no treinamento da ferramenta inserindo
+        um cenário fictício ou real em que utilizou/utilizaria um atendimento via chat, e
+        posteriormente informando o sentimento por trás daquele atendimento.
+    </p>
+
+    <p>Positivo –> se estava bem, feliz ou se a intenção era de aderir a mais produtos.</p>
+
+    <p>Negativo -> se estava insatisfeito com algo, queria cancelar ou irritado.</p>
+
+</div>
+
+<div class="alert alert-secondary mt-4" role="alert">
+    <span class="oi oi-pencil mr-2" aria-hidden="true"></span>
+    <strong>Antes de participar peço para que leia e aceite o termo de participação por favor.</strong>
+</div>
+<br />
+
+<p>
+    <input type="checkbox" id="termoCheck" name="termoCheck" @onchange="HabilitaBotao">
+    <label for="termoCheck">Li o <a href="termo" target="_blank">termo</a> e concordo em participar da pesquisa.</label>
+</p>
+
+<p>
+    Digite seu nome para iniciar o chat:
+</p>
+
+
+    <input type="text" maxlength="32" @bind-value="appData.Nome" @bind-value:event="oninput" />
+    <button type="button" id="botaoIniciar" name="botaoIniciar" @onclick="Iniciar" disabled>
+        <span class="oi oi-chat" aria-hidden="true"></span>Iniciar
+    </button>
+
+
+
+@code {
+
+    private async Task HabilitaBotao()
+    {
+        await JS.InvokeAsync<string>("HabilitaBotao");
+    }
+
+    private void Iniciar()
+    {
+        NavManager.NavigateTo("/chatroom");
+    }
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+.

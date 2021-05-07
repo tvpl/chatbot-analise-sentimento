@@ -1,0 +1,20 @@
+﻿@page "/treinar"
+@inject NavigationManager NavManager
+
+<div class="center" style="width: 95%;">
+    <button class="btn btn-primary" style="width: 100%;" @onclick="TreinarBase">Retreinar a Base</button>
+</div>
+
+<br />
+<br />
+<br />
+<br />
+
+@code {
+
+    public void TreinarBase()
+    {
+        AnaliseSentimentoChatBot.Service.SentimentAnalysis.Retraining();
+        NavManager.NavigateTo("/");
+    }
+}
